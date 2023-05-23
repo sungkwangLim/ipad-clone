@@ -43,7 +43,10 @@ const searchInputEl = searchWrapEl.querySelector('input[type="text"]');
 const searchDelayEls = [...searchWrapEl.querySelectorAll('.autocompletes ul li')];
 
 searchStarterEl.addEventListener('click',showSearch);
-searchCloserEl.addEventListener('click',hideSearch);
+searchCloserEl.addEventListener('click',function(e){
+    e.stopPropagation();
+    hideSearch();
+});
 searchShadowEl.addEventListener('click',hideSearch);
 
 function showSearch() {
@@ -71,7 +74,67 @@ function hideSearch() {
     searchDelayEls.reverse();
     searchInputEl.value = '';
 }
+function playScroll(){
+    document.documentElement.classList.remove('fixed');
+}
+function stopScroll(){
+    document.documentElement.classList.add('fixed');
+}
 
+// 헤더 메뉴 토글
+const menuStaterEl = headerEl.querySelector('.manu-starter');
+menuStaterEl.addEventListener('click',function(){
+    if (headerEl.classList.contains('menuing')) {
+        headerEl.classList.remove('menuing');    
+        searchInputEl.value = '';
+        playScroll();
+    } else {
+        headerEl.classList.add('menuing');    
+        stopScroll();
+    }
+});
+
+// 헤더 검색 
+const searchTextFieldEl = headerEl.querySelector('.search .textfield');
+const searchCancelEl = headerEl.querySelector('.search .search-canceler');
+searchTextFieldEl.addEventListener('click',function(){
+    headerEl.classList.add('searching--mobile');
+    searchInputEl.focus();
+});
+searchCancelEl.addEventListener('click',function(){
+    headerEl.classList.remove('searching--mobile');
+});
+
+window.addEventListener('resize',function(){
+    if(window.innerWidth <= 740) {
+        headerEl.classList.remove('searching');
+    } else {
+        headerEl.classList.remove('searching--mobile');
+    }
+});
+
+const navEl = document.querySelector('nav');
+const navMenuToggleEl = navEl.querySelector('.menu-toggler');
+const navMenuShadowEl = navEl.querySelector('.shadow');
+
+navMenuToggleEl.addEventListener('click',function(){
+    if (navEl.classList.contains('menuing')) {
+        hideNavMenu();
+    } else {
+        showNavMenu();
+    }
+});
+navEl.addEventListener('click',function(e){
+    e.stopPropagation();
+});
+navMenuShadowEl.addEventListener('click',hideNavMenu);
+window.addEventListener('click',hideNavMenu);
+function showNavMenu(){
+    navEl.classList.add('menuing');    
+}
+function hideNavMenu(){
+    navEl.classList.remove('menuing');   
+}
 
 // 요소의 가시성 관찰
 const io = new IntersectionObserver(function(entries){
@@ -149,6 +212,7 @@ navigations.forEach(function(nav){
     mapEl.innerHTML = /* html */`
         <h3>
             <span class="text">${nav.title}</span>
+            <span class="icon">+</span>
         </h3>
         <ul>
             ${mapList}
@@ -160,3 +224,19 @@ navigations.forEach(function(nav){
 
 const thisYearEl = document.querySelector('span.this-year');
 thisYearEl.textContent = new Date().getFullYear();
+
+const mapEls = navigationsEl.querySelectorAll('.map');
+mapEls.forEach(function(el){
+    const h3El = el.querySelector('h3');
+    h3El.addEventListener('click',function(){
+        el.classList.toggle('active');
+    });
+});
+
+// const testBtn = document.querySelector('nav h1');
+// testBtn.addEventListener('click',function(){
+//     navigator.geolocation.getCurrentPosition(function(e){ 
+//         const {latitude,longitude} = e.coords;
+//         console.log(latitude,longitude);
+//     });
+// });
